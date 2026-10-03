@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HoodCard - A USD virtual card funded by USDG on Robinhood Chain</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0e0820;--ink:#f1ecff;--mute:#a99fc9;--line:#2b2150;--panel:#170f33;--blue:#a98bff;--btn:#7c3aed;--ok:#3ddc97;--bad:#ff6b81;--code:#0a0618;--codefg:#d8ccff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 500px at 85% -10%,rgba(124,58,237,.35),transparent 60%),var(--bg);background-attachment:fixed;color:var(--ink);font:400 16px/1.6 Figtree,system-ui,sans-serif}
+h1,h2,h3{font-family:'Bricolage Grotesque',system-ui,sans-serif;line-height:1.1;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0;font-weight:600}
+nav b{font:800 20px 'Bricolage Grotesque';display:flex;align-items:center;gap:8px}
+nav b i{width:18px;height:18px;border-radius:50%;background:#39ff14;box-shadow:0 0 0 1px rgba(6,34,10,.25);display:inline-block}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;padding:36px 0 56px}
+h1{font-size:clamp(38px,6vw,64px);font-weight:800;letter-spacing:-.02em}
+.hero p{color:var(--mute);max-width:46ch;font-size:18px}
+button{font:600 15px Figtree;cursor:pointer;border:0;border-radius:10px;padding:11px 18px;background:var(--btn);color:#fff}
+button.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.card{aspect-ratio:1.586;border-radius:22px;padding:24px;color:#06220a;background:linear-gradient(135deg,#b6ff1a 0%,#39ff14 70%);display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 24px 50px -20px rgba(57,255,20,.6);transition:filter .3s,transform .3s;max-width:420px;width:100%}
+.card.frozen{filter:grayscale(1) brightness(.7);transform:scale(.98)}
+.card .top{display:flex;justify-content:space-between;font:800 20px 'Bricolage Grotesque'}
+.card .num{font:600 21px/1 Figtree;letter-spacing:.08em}
+.card .bot{display:flex;justify-content:space-between;align-items:end;font-size:13px;opacity:.9}
+.card .bal{font:800 28px 'Bricolage Grotesque';opacity:1}
+section{padding:40px 0;border-top:1px solid var(--line)}
+section h2{font-size:clamp(26px,4vw,38px);margin-bottom:8px}
+.sub{color:var(--mute);margin:0 0 24px;max-width:60ch}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.panel h3{font-size:19px;margin-bottom:12px}
+label{display:block;font-size:14px;color:var(--mute);margin:10px 0 4px}
+input,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:16px Figtree}
+.row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.tx{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto}
+.tx li{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.tx small{display:block;color:var(--mute)}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tabs button{background:transparent;color:var(--mute);border:1px solid var(--line)}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.mono{word-break:break-all;font-size:13px}button:disabled{opacity:.5;cursor:not-allowed}pre.unused{background:var(--code);color:var(--codefg);padding:18px;border-radius:14px;overflow-x:auto;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;margin:0}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.flow div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;font-size:15px}
+.flow b{display:block;font:700 17px 'Bricolage Grotesque';margin-bottom:4px}
+.note{background:var(--panel);border-left:4px solid var(--blue);padding:14px 18px;border-radius:8px;color:var(--mute);font-size:15px}
+footer{padding:30px 0;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:800px){.hero,.grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr 1fr}}
+</style></head><body>
+<div class="wrap">
+<nav><b><i></i>HoodCard</b><span style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><button class="alt" id="tk" onclick="copyToken()" aria-label="Copy $HoodCard contract address" style="padding:8px 12px;font-size:14px"></button><a href="#demo" id="nv" onclick="if(!acct)connect()" style="color:var(--blue);text-decoration:none">Connect wallet</a></span></nav>
+<div class="hero">
+<div>
+<h1>Spend online in the US with USDG from Robinhood Chain.</h1>
+<p>Sign in with your wallet, deposit USDG, and get a Visa/Mastercard virtual card for PayPal, Apple Pay, or any online merchant. Purchases settle in USD.</p>
+<div class="row"><button id="hb" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'});if(!acct)connect()">Connect wallet</button></div>
+</div>
+<div><div class="card" id="hc"><div class="top"><span>HoodCard</span><span>VISA</span></div><div class="num" id="cnum">HOOD •••• •••• ••••</div><div class="bot"><span>Card balance<br><span class="bal" id="hbal">$0.00</span></span><span id="cst">Preview</span></div></div><p id="cap" style="color:var(--mute);font-size:14px;margin:12px 0 0;max-width:420px"></p></div>
+</div>
+
+<section id="demo">
+<h2 id="h2w">Connect your wallet</h2>
+<p class="sub">Deposit USDG on <span id="netname"></span> from your own wallet.</p>
+<div class="note" style="margin-bottom:20px" id="warn"></div>
+<div class="grid">
+<div class="panel"><h3>Deposit USDG</h3>
+<div id="acct" style="color:var(--mute)">Not connected</div>
+<div id="bal" style="color:var(--mute);font-size:14px"></div>
+<div class="row"><button id="cb" onclick="connect()">Connect wallet</button></div>
+<label for="dep">Amount (USDG)</label><input id="dep" type="text" inputmode="decimal" value="10">
+<label style="display:flex;gap:8px;align-items:flex-start;color:var(--ink)"><input id="ack" type="checkbox" style="width:auto;margin-top:5px"><span style="font-size:14px">I understand my USDG is sent to the project treasury wallet, which is controlled by the project operator, and card issuance is not live yet.</span></label>
+<div class="row"><button id="db" onclick="deposit()" disabled>Deposit USDG</button></div>
+<p id="msg" role="status" style="min-height:24px;font-size:14px;margin:10px 0 0"></p></div>
+<div class="panel"><h3>Your deposits</h3><div id="tot" style="font:700 22px 'Bricolage Grotesque';margin-bottom:8px"></div><ul class="tx" id="tx"><li><span>No deposits yet. Connect your wallet to start.</span></li></ul></div>
+</div></section>
+
+<section>
+<h2>How it works</h2>
+<p class="sub">A licensed issuing partner issues the card. You run the vault and the authorization decisions.</p>
+<div class="flow">
+<div><b>Deposit</b>Sign in with a wallet (no password) and send USDG to the vault on Robinhood Chain.</div>
+<div><b>Issue</b>The issuer runs a one-time identity check in its hosted flow, then the card is created.</div>
+<div><b>Authorize</b>The issuer sends a webhook and the backend checks the balance.</div>
+<div><b>Settle</b>The merchant is paid in USD and the vault is debited in USDG.</div>
+</div>
+</section>
+
+<footer>HoodCard is an independent project and is not affiliated with, endorsed by, or sponsored by Robinhood Markets, Inc. or Visa.</footer>
+</div>
+<script>
+var TREASURY='0x7176BA4d4179256841d063f309f38AaB67275f58';
+var LIVE=false; // set to true for Robinhood Chain mainnet (real USDG). Verify the USDG address on Blockscout first
+var NET=LIVE?{id:'0x1237',name:'Robinhood Chain',usdc:'0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168',scan:'https://robinhoodchain.blockscout.com/tx/',rpc:'https://rpc.mainnet.chain.robinhood.com',cur:'ETH'}:{id:'0xb626',name:'Robinhood Chain Testnet',usdc:'',scan:'https://explorer.testnet.chain.robinhood.com/tx/',rpc:'https://rpc.testnet.chain.robinhood.com',cur:'ETH'};
+var acct=null,total=0,rows=[];
+function $(i){return document.getElementById(i)}
+function say(t,bad){var m=$('msg');m.textContent=t;m.style.color=bad?'var(--bad)':'var(--mute)'}
+function pad(h){return h.replace(/^0x/,'').toLowerCase().padStart(64,'0')}
+function req(m,p){return window.ethereum.request({method:m,params:p||[]})}
+function units(str){str=String(str).trim();if(!/^\d+(\.\d{1,6})?$/.test(str))return null;var a=str.split('.');var v=BigInt(a[0])*1000000n+BigInt(((a[1]||'')+'000000').slice(0,6));return v>0n?v:null}
+$('netname').textContent=NET.name;
+$('warn').innerHTML=LIVE?'<b>Please read:</b> Card issuance is not live yet. Deposits go to a wallet controlled by the project operator, not to a smart contract, and cannot be reversed. Only deposit what you can afford to lose.':'<b>Test mode:</b> this page uses Robinhood Chain Testnet, so no real money moves. The testnet stablecoin address is not set yet, so deposits are disabled until you add it. You need test tokens and a little test ETH for gas from the Robinhood Chain testnet faucet.';
+function render(){
+ $('hbal').textContent='$'+total.toFixed(2);
+ $('db').disabled=!(acct&&$('ack').checked);
+ $('acct').textContent=acct?'Connected: '+acct.slice(0,6)+'...'+acct.slice(-4):'Not connected';
+ $('cb').textContent=acct?'Refresh balance':'Connect wallet';
+ $('nv').textContent=acct?acct.slice(0,6)+'...'+acct.slice(-4):'Connect wallet';$('hb').textContent=acct?'Deposit USDG':'Connect wallet';$('h2w').textContent=acct?'Your wallet':'Connect your wallet';
+ $('tot').textContent=acct?'Card balance: $'+total.toFixed(2):'';
+ var ul=$('tx');if(!rows.length){ul.innerHTML='<li><span>No deposits yet. Connect your wallet to start.</span></li>';return}ul.innerHTML='';
+ rows.forEach(function(r){var li=document.createElement('li');var a=document.createElement('span');a.textContent='Deposit '+r.amt+' USDG';var sm=document.createElement('small');sm.textContent=r.st;a.appendChild(sm);
+  var l=document.createElement('a');l.href=NET.scan+r.h;l.target='_blank';l.rel='noopener';l.textContent=r.h.slice(0,8)+'...';l.style.color='var(--blue)';
+  li.appendChild(a);li.appendChild(l);ul.appendChild(li)})
+}
+$('ack').addEventListener('change',render);
+async function cardId(a){try{var d=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('hoodcard:'+a.toLowerCase())));var n='';for(var i=0;i<12;i++)n+=d[i]%10;return 'HOOD '+n.replace(/(\d{4})(?=\d)/g,'$1 ')}catch(e){return 'HOOD •••• •••• ••••'}}
+function load(){total=0;rows=[];if(!acct)return;try{var d=JSON.parse(localStorage.getItem('bc:'+acct.toLowerCase())||'null');if(d){total=d.total||0;rows=d.rows||[]}}catch(e){}}
+function save(){try{localStorage.setItem('bc:'+acct.toLowerCase(),JSON.stringify({total:total,rows:rows.filter(function(r){return r.st==='Confirmed'})}))}catch(e){}}
+async function showCard(){load();$('cnum').textContent=acct?await cardId(acct):'HOOD •••• •••• ••••';$('cap').textContent=acct?'Preview ID reserved for your wallet. It cannot be used for payments until card issuance launches.':'Connect your wallet to reserve your card ID.'}
+async function ensureChain(){
+ try{await req('wallet_switchEthereumChain',[{chainId:NET.id}])}
+ catch(e){if(e&&e.code===4902){await req('wallet_addEthereumChain',[{chainId:NET.id,chainName:NET.name,rpcUrls:[NET.rpc],nativeCurrency:{name:'Ether',symbol:'ETH',decimals:18},blockExplorerUrls:[NET.scan.replace('/tx/','')]}])}else throw e}
+}
+async function balance(){
+ if(!NET.usdc){$('bal').textContent='';return}
+ try{var r=await req('eth_call',[{to:NET.usdc,data:'0x70a08231'+pad(acct)},'latest']);
+ $('bal').textContent='Your USDG balance: '+(Number(BigInt(r)/10000n)/100).toFixed(2)}catch(e){$('bal').textContent=''}
+}
+async function connect(){
+ if(!window.ethereum){say('No wallet found. Install MetaMask or Coinbase Wallet, or open this page in your wallet app browser.',true);return}
+ try{var a=await req('eth_requestAccounts');acct=a[0];await ensureChain();say('Wallet connected.');showCard();await balance()}
+ catch(e){say(e&&e.code===4001?'Connection cancelled in your wallet.':'Could not connect: '+(e.message||'unknown error'),true)}
+ render();
+}
+async function deposit(){
+ var v=units($('dep').value);
+ if(!NET.usdc){say('Testnet stablecoin address is not configured yet.',true);return}
+ if(!v){say('Enter a valid amount with up to 6 decimals.',true);return}
+ try{
+  await ensureChain();
+  var data='0xa9059cbb'+pad(TREASURY)+pad(v.toString(16));
+  say('Confirm the transfer in your wallet...');
+  var h=await req('eth_sendTransaction',[{from:acct,to:NET.usdc,data:data}]);
+  var row={h:h,amt:$('dep').value.trim(),st:'Pending confirmation',v:Number(v)/1e6};rows.unshift(row);say('Transaction sent. Waiting for confirmation...');render();
+  var t=setInterval(async function(){
+   try{var rc=await req('eth_getTransactionReceipt',[h]);if(rc){clearInterval(t);
+    if(rc.status==='0x1'){row.st='Confirmed';total+=row.v;save();say('Deposit confirmed.')}else{row.st='Failed';say('Transaction failed on-chain.',true)}
+    render();balance()}}catch(e){}
+  },3000);
+ }catch(e){say(e&&e.code===4001?'Transfer cancelled in your wallet.':'Deposit failed: '+(e.message||'unknown error'),true)}
+}
+if(window.ethereum&&window.ethereum.on){
+ window.ethereum.on('accountsChanged',function(a){acct=a[0]||null;if(acct)balance();showCard();render()});
+ window.ethereum.on('chainChanged',function(){if(acct)balance()});
+}
+var TOKEN='0x000'; // replace with the $HoodCard contract address when it is live
+function shortAddr(a){return a.length>14?a.slice(0,6)+'...'+a.slice(-4):a}
+var TKL='$HoodCard';$('tk').textContent=TKL;
+async function copyToken(){
+ try{await navigator.clipboard.writeText(TOKEN)}
+ catch(e){var t=document.createElement('textarea');t.value=TOKEN;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(_){}document.body.removeChild(t)}
+ $('tk').textContent='Copied!';setTimeout(function(){$('tk').textContent=TKL},1500)
+}
+render();showCard();
+</script>
+</body></html>
